@@ -3,7 +3,7 @@
      srcset="https://raw.githubusercontent.com/mockito/mockito/main/src/javadoc/org/mockito/logo@2x.png 2x"
      alt="Mockito" />
 </a>
-TEST TEST
+TEST Hello World
 Most popular mocking framework for Java
 
 [![CI](https://github.com/mockito/mockito/workflows/CI/badge.svg)](https://github.com/mockito/mockito/actions?query=workflow%3ACI)
