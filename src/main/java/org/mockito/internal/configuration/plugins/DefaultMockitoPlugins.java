@@ -6,9 +6,7 @@ package org.mockito.internal.configuration.plugins;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.mockito.internal.creation.instance.InstantiatorProvider2Adapter;
 import org.mockito.plugins.AnnotationEngine;
-import org.mockito.plugins.InstantiatorProvider;
 import org.mockito.plugins.InstantiatorProvider2;
 import org.mockito.plugins.MemberAccessor;
 import org.mockito.plugins.MockMaker;
@@ -21,6 +19,7 @@ class DefaultMockitoPlugins implements MockitoPlugins {
 
     private static final Map<String, String> DEFAULT_PLUGINS = new HashMap<>();
     static final String INLINE_ALIAS = "mock-maker-inline";
+    static final String PROXY_ALIAS = "mock-maker-proxy";
     static final String MODULE_ALIAS = "member-accessor-module";
 
     static {
@@ -40,6 +39,7 @@ class DefaultMockitoPlugins implements MockitoPlugins {
                 "org.mockito.internal.configuration.InjectingAnnotationEngine");
         DEFAULT_PLUGINS.put(
                 INLINE_ALIAS, "org.mockito.internal.creation.bytebuddy.InlineByteBuddyMockMaker");
+        DEFAULT_PLUGINS.put(PROXY_ALIAS, "org.mockito.internal.creation.proxy.ProxyMockMaker");
         DEFAULT_PLUGINS.put(
                 MockitoLogger.class.getName(), "org.mockito.internal.util.ConsoleMockitoLogger");
         DEFAULT_PLUGINS.put(
@@ -51,18 +51,8 @@ class DefaultMockitoPlugins implements MockitoPlugins {
 
     @Override
     public <T> T getDefaultPlugin(Class<T> pluginType) {
-        if (pluginType == InstantiatorProvider.class) {
-            // the implementation class is not configured via map so that we can reduce duplication
-            // (ensure that we are adapting the currently configured default implementation for
-            // InstantiatorProvider2)
-            String className = DEFAULT_PLUGINS.get(InstantiatorProvider2.class.getName());
-            return pluginType.cast(
-                    new InstantiatorProvider2Adapter(
-                            create(InstantiatorProvider2.class, className)));
-        } else {
-            String className = DEFAULT_PLUGINS.get(pluginType.getName());
-            return create(pluginType, className);
-        }
+        String className = DEFAULT_PLUGINS.get(pluginType.getName());
+        return create(pluginType, className);
     }
 
     String getDefaultPluginClass(String classOrAlias) {

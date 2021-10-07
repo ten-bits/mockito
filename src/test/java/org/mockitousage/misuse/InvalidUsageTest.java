@@ -32,11 +32,6 @@ public class InvalidUsageTest extends TestBase {
     }
 
     @Test(expected = MockitoException.class)
-    public void shouldRequireArgumentsWhenVerifyingZeroInteractions() {
-        verifyZeroInteractions();
-    }
-
-    @Test(expected = MockitoException.class)
     public void shouldRequireArgumentsWhenVerifyingNoInteractions() {
         verifyNoInteractions();
     }
@@ -105,45 +100,23 @@ public class InvalidUsageTest extends TestBase {
     }
 
     @Test
-    public void shouldNotMockObjectMethodsOnInterface() throws Exception {
-        ObjectLikeInterface inter = mock(ObjectLikeInterface.class);
-
-        inter.equals(null);
-        inter.toString();
-        inter.hashCode();
-
-        verifyZeroInteractions(inter);
-    }
-
-    @Test
     public void shouldNotMockObjectMethodsOnInterfaceVerifyNoInteractions() throws Exception {
         ObjectLikeInterface inter = mock(ObjectLikeInterface.class);
 
-        inter.equals(null);
-        inter.toString();
-        inter.hashCode();
+        Object ignored = inter.equals(null);
+        ignored = inter.toString();
+        ignored = inter.hashCode();
 
         verifyNoInteractions(inter);
-    }
-
-    @Test
-    public void shouldNotMockObjectMethodsOnClass() throws Exception {
-        Object clazz = mock(ObjectLikeInterface.class);
-
-        clazz.equals(null);
-        clazz.toString();
-        clazz.hashCode();
-
-        verifyZeroInteractions(clazz);
     }
 
     @Test
     public void shouldNotMockObjectMethodsOnClassVerifyNoInteractions() throws Exception {
         Object clazz = mock(ObjectLikeInterface.class);
 
-        clazz.equals(null);
-        clazz.toString();
-        clazz.hashCode();
+        Object ignored = clazz.equals(null);
+        ignored = clazz.toString();
+        ignored = clazz.hashCode();
 
         verifyNoInteractions(clazz);
     }

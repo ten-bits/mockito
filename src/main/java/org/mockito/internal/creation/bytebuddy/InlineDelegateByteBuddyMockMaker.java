@@ -5,7 +5,6 @@
 package org.mockito.internal.creation.bytebuddy;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
-import org.mockito.Incubating;
 import org.mockito.MockedConstruction;
 import org.mockito.creation.instance.InstantiationException;
 import org.mockito.creation.instance.Instantiator;
@@ -100,7 +99,6 @@ import static org.mockito.internal.util.StringUtil.join;
  * (also known as HotSwap). All major VM distributions such as HotSpot (OpenJDK), J9 (IBM/Websphere) or Zing (Azul)
  * support this feature.
  */
-@Incubating
 @SuppressSignatureCheck
 class InlineDelegateByteBuddyMockMaker
         implements ClassCreatingMockMaker, InlineMockMaker, Instantiator {
@@ -393,7 +391,8 @@ class InlineDelegateByteBuddyMockMaker
                             settings.getTypeToMock(),
                             settings.getExtraInterfaces(),
                             settings.getSerializableMode(),
-                            settings.isStripAnnotations()));
+                            settings.isStripAnnotations(),
+                            settings.getDefaultAnswer()));
         } catch (Exception bytecodeGenerationFailed) {
             throw prettifyFailure(settings, bytecodeGenerationFailed);
         }

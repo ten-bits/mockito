@@ -14,10 +14,13 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Answers;
 import org.mockito.mock.SerializableMode;
 import org.mockitoutil.VmArgAssumptions;
 
@@ -46,7 +49,8 @@ public class TypeCachingMockBytecodeGeneratorTest {
                                 classloader_with_life_shorter_than_cache.loadClass("foo.Bar"),
                                 Collections.<Class<?>>emptySet(),
                                 SerializableMode.NONE,
-                                false));
+                                false,
+                                Answers.RETURNS_DEFAULTS));
 
         ReferenceQueue<Object> referenceQueue = new ReferenceQueue<Object>();
         Reference<Object> typeReference =
@@ -79,7 +83,8 @@ public class TypeCachingMockBytecodeGeneratorTest {
                                 classloader_with_life_shorter_than_cache.loadClass("foo.Bar"),
                                 Collections.<Class<?>>emptySet(),
                                 SerializableMode.NONE,
-                                false));
+                                false,
+                                Answers.RETURNS_DEFAULTS));
 
         Class<?> other_mock_type =
                 cachingMockBytecodeGenerator.mockClass(
@@ -87,7 +92,8 @@ public class TypeCachingMockBytecodeGeneratorTest {
                                 classloader_with_life_shorter_than_cache.loadClass("foo.Bar"),
                                 Collections.<Class<?>>emptySet(),
                                 SerializableMode.NONE,
-                                false));
+                                false,
+                                Answers.RETURNS_DEFAULTS));
 
         assertThat(other_mock_type).isSameAs(the_mock_type);
 
@@ -123,7 +129,8 @@ public class TypeCachingMockBytecodeGeneratorTest {
                                 classloader_with_life_shorter_than_cache.loadClass("foo.Bar"),
                                 Collections.<Class<?>>emptySet(),
                                 SerializableMode.NONE,
-                                false));
+                                false,
+                                Answers.RETURNS_DEFAULTS));
 
         Class<?> other_mock_type =
                 cachingMockBytecodeGenerator.mockClass(
@@ -131,9 +138,46 @@ public class TypeCachingMockBytecodeGeneratorTest {
                                 classloader_with_life_shorter_than_cache.loadClass("foo.Bar"),
                                 Collections.<Class<?>>emptySet(),
                                 SerializableMode.BASIC,
-                                false));
+                                false,
+                                Answers.RETURNS_DEFAULTS));
 
         assertThat(other_mock_type).isNotSameAs(the_mock_type);
+    }
+
+    @Test
+    public void ensure_cache_returns_same_instance_defaultAnswer() throws Exception {
+        // given
+        ClassLoader classloader_with_life_shorter_than_cache =
+                inMemoryClassLoader()
+                        .withClassDefinition("foo.Bar", makeMarkerInterface("foo.Bar"))
+                        .build();
+
+        TypeCachingBytecodeGenerator cachingMockBytecodeGenerator =
+                new TypeCachingBytecodeGenerator(new SubclassBytecodeGenerator(), true);
+
+        Answers[] answers = Answers.values();
+        Set<Class<?>> classes = Collections.newSetFromMap(new IdentityHashMap<>());
+        classes.add(
+                cachingMockBytecodeGenerator.mockClass(
+                        withMockFeatures(
+                                classloader_with_life_shorter_than_cache.loadClass("foo.Bar"),
+                                Collections.<Class<?>>emptySet(),
+                                SerializableMode.NONE,
+                                false,
+                                null)));
+        for (Answers answer : answers) {
+            Class<?> klass =
+                    cachingMockBytecodeGenerator.mockClass(
+                            withMockFeatures(
+                                    classloader_with_life_shorter_than_cache.loadClass("foo.Bar"),
+                                    Collections.<Class<?>>emptySet(),
+                                    SerializableMode.NONE,
+                                    false,
+                                    answer));
+            assertThat(classes.add(klass)).isFalse();
+        }
+
+        assertThat(classes).hasSize(1);
     }
 
     @Test

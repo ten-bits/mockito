@@ -237,14 +237,14 @@ class SubclassBytecodeGenerator implements BytecodeGenerator {
                                 features.stripAnnotations
                                         ? MethodAttributeAppender.NoOp.INSTANCE
                                         : INCLUDING_RECEIVER)
-                        .method(isHashCode())
-                        .intercept(hashCode)
-                        .method(isEquals())
-                        .intercept(equals)
                         .serialVersionUid(42L)
                         .defineField("mockitoInterceptor", MockMethodInterceptor.class, PRIVATE)
                         .implement(MockAccess.class)
-                        .intercept(FieldAccessor.ofBeanProperty());
+                        .intercept(FieldAccessor.ofBeanProperty())
+                        .method(isHashCode())
+                        .intercept(hashCode)
+                        .method(isEquals())
+                        .intercept(equals);
         if (features.serializableMode == SerializableMode.ACROSS_CLASSLOADERS) {
             builder =
                     builder.implement(CrossClassLoaderSerializableMock.class)
